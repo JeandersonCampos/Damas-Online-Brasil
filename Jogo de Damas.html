@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jogo de Damas</title>
+<style>
+:root{--bg:#efe6d2;--fg:#2a1e12;--bd:#c9b48f;--card:#f8f1e1;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1510;--fg:#f0e6d3;--bd:#4d3c28;--card:#2a2118;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1b1510;--fg:#f0e6d3;--bd:#4d3c28;--card:#2a2118;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 Georgia,"Times New Roman",serif;display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px}
+h1{margin:0;font-size:1.7rem;letter-spacing:.02em}
+.bar{display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:center;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 14px}
+label{display:flex;gap:6px;align-items:center;font-size:.95rem}
+select,button{font:inherit;padding:6px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--fg);cursor:pointer}
+button{background:#8a5a2b;color:#fff;border-color:#8a5a2b}
+button:focus-visible,select:focus-visible{outline:3px solid #e0a63a;outline-offset:2px}
+#score{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.pl{min-width:150px;background:var(--card);border:2px solid var(--bd);border-radius:12px;padding:8px 14px;text-align:center}
+.pl.on{border-color:#e0a63a;box-shadow:0 0 0 3px rgba(224,166,58,.35)}
+.pl h3{margin:0 0 2px;font-size:1rem;display:flex;gap:6px;align-items:center;justify-content:center}
+.dot{width:16px;height:16px;border-radius:50%;display:inline-block;border:1px solid #0006}
+.dot.w{background:#f4efe3}.dot.b{background:#222}
+.pl .pts{font-size:2rem;font-weight:bold;line-height:1.1}
+.pl small{display:block;opacity:.85}
+#st{text-align:center;font-size:1.25rem;font-weight:bold}
+#toast{min-height:2.6em;display:flex;align-items:center}
+#toast span{background:#c2410c;color:#fff;font-weight:bold;padding:8px 18px;border-radius:999px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+#modal.show{display:flex}
+.box{background:var(--card);color:var(--fg);border:3px solid #e0a63a;border-radius:16px;padding:22px 26px;max-width:420px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.box h2{margin:0 0 6px;font-size:1.7rem}
+.box p{margin:6px 0}
+.box .row{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.box .ghost{background:transparent;color:var(--fg)}
+#board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));--s:min(94vw,70vh,580px);width:var(--s);height:var(--s);border:7px solid #4f3216;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.35);user-select:none}
+.sq{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;min-height:0}
+.l{background:#f1dcb7}.d{background:#9b6535;cursor:pointer}
+.d.last{background:#b98a3e}
+.sel{box-shadow:inset 0 0 0 4px #ffd34d}
+.tgt::after,.wp::after{content:"";position:absolute;width:30%;height:30%;border-radius:50%}
+.tgt::after{background:rgba(90,210,100,.9)}
+.wp::after{background:rgba(90,160,255,.9)}
+.pc{width:80%;height:80%;flex:none;line-height:1;overflow:hidden;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:calc(var(--s)/8*.45);box-shadow:0 3px 5px rgba(0,0,0,.55),inset 0 -4px 6px rgba(0,0,0,.25);z-index:1}
+.w{background:radial-gradient(circle at 35% 30%,#fff,#d8d2c4 70%);color:#a8780a}
+.b{background:radial-gradient(circle at 35% 30%,#6a6a6a,#141414 70%);color:#f5c542}
+.hint{max-width:580px;text-align:center;font-size:.85rem;opacity:.8;margin:0}
+input{font:inherit;padding:6px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--fg);width:7.5em;text-transform:uppercase;letter-spacing:.15em;text-align:center}
+*{-webkit-tap-highlight-color:transparent}
+#board{touch-action:manipulation}
+@media (max-width:600px){body{padding:10px}h1{font-size:1.4rem}button,select,input{font-size:16px;padding:10px 14px}.pl{min-width:0;flex:1 1 90px;padding:6px 8px}.pl .pts{font-size:1.6rem}}
+</style>
+</head>
+<body>
+<h1>Jogo de Damas</h1>
+<div class="bar">
+<label>Modo <select id="mode"><option value="ai">Contra a máquina</option><option value="pvp">Dois jogadores (mesmo aparelho)</option><option value="online">Online (cada um no seu celular)</option></select></label>
+<label id="l1">Nível <select id="level"><option value="1">Fácil</option><option value="2" selected>Médio</option><option value="3">Difícil</option></select></label>
+<label id="l2">Você joga com <select id="side"><option value="1">Brancas</option><option value="-1">Pretas</option></select></label>
+<button id="new">Novo jogo</button><button id="undo">Desfazer</button>
+</div>
+<div id="online" class="bar" style="display:none"><button id="create">Criar partida</button><span>ou</span><input id="code" placeholder="CÓDIGO" maxlength="5" autocomplete="off" autocapitalize="characters" aria-label="Código da partida"><button id="join">Entrar</button><b id="olink"></b></div>
+<div id="score"></div>
+<div id="st"></div>
+<div id="toast"></div>
+<div id="board"></div>
+<div id="modal"></div>
+<p class="hint">Damas brasileiras: as brancas começam, a captura é obrigatória (vale a que pega mais peças), as pedras capturam para trás e a dama anda e captura à distância. Clique na peça e depois na casa de destino; em capturas múltiplas, clique em cada casa do percurso. No modo online, uma pessoa cria a partida e passa o código para a outra; as duas precisam estar com o jogo aberto e logadas no Claude.</p>
+<script>
+const $=id=>document.getElementById(id);
+const S={gen:0,wins:{1:0,'-1':0},draws:0};
+const D=[[-1,-1],[-1,1],[1,-1],[1,1]];
+const inb=(r,c)=>r>=0&&r<8&&c>=0&&c<8;
+function seqs(b,r,c,p,cap,path,out){
+  const king=Math.abs(p)==2,me=Math.sign(p);let any=false;
+  for(const[dr,dc]of D){
+    let y=r+dr,x=c+dc;
+    if(king){while(inb(y,x)&&b[y*8+x]==0){y+=dr;x+=dc}}
+    if(!inb(y,x))continue;
+    const v=b[y*8+x];
+    if(Math.sign(v)!==-me||cap.includes(y*8+x))continue;
+    let ly=y+dr,lx=x+dc;const lands=[];
+    while(inb(ly,lx)&&b[ly*8+lx]==0){lands.push([ly,lx]);if(!king)break;ly+=dr;lx+=dc}
+    for(const[a,e]of lands){any=true;seqs(b,a,e,p,[...cap,y*8+x],[...path,a*8+e],out)}
+  }
+  if(!any&&cap.length)out.push({path,cap});
+}
+function legal(b,t){
+  const caps=[],simple=[];
+  for(let i=0;i<64;i++){
+    const p=b[i];if(Math.sign(p)!==t)continue;
+    const r=i>>3,c=i&7;
+    b[i]=0;const out=[];seqs(b,r,c,p,[],[],out);b[i]=p;
+    for(const o of out)caps.push({from:i,path:o.path,cap:o.cap});
+    for(const[dr,dc]of D){
+      if(Math.abs(p)==1&&dr!==-t)continue;
+      let y=r+dr,x=c+dc;
+      while(inb(y,x)&&b[y*8+x]==0){simple.push({from:i,path:[y*8+x],cap:[]});if(Math.abs(p)==1)break;y+=dr;x+=dc}
+    }
+  }
+  if(caps.length){const m=Math.max(...caps.map(x=>x.cap.length));return caps.filter(x=>x.cap.length==m)}
+  return simple;
+}
+function ap(b,m){
+  const n=b.slice(),p=n[m.from];n[m.from]=0;
+  for(const c of m.cap)n[c]=0;
+  const e=m.path[m.path.length-1],r=e>>3;let q=p;
+  if(Math.abs(p)==1&&((p==1&&r==0)||(p==-1&&r==7)))q=2*p;
+  n[e]=q;return n;
+}
+function ev(b){
+  let s=0;
+  for(let i=0;i<64;i++){
+    const p=b[i];if(!p)continue;
+    const r=i>>3,c=i&7;
+    let v=Math.abs(p)==2?320:100+(p>0?7-r:r)*6;
+    if(c==0||c==7)v+=3;else if(r>=2&&r<=5&&c>=2&&c<=5)v+=3;
+    s+=p>0?v:-v;
+  }
+  return s;
+}
+function ab(b,t,d,a,be){
+  const ms=legal(b,t);
+  if(!ms.length)return t==1?-9000-d:9000+d;
+  if(d<=0&&(!ms[0].cap.length||d<-3))return ev(b);
+  let v=t==1?-1e9:1e9;
+  for(const m of ms){
+    const s=ab(ap(b,m),-t,d-1,a,be);
+    if(t==1){if(s>v)v=s;if(v>a)a=v}else{if(s<v)v=s;if(v<be)be=v}
+    if(a>=be)break;
+  }
+  return v;
+}
+function pick(){
+  if(S.moves.length==1)return S.moves[0];
+  const t=S.turn,dep=[2,4,5][S.level-1],noise=[150,12,2][S.level-1];
+  let best=null,bs=null;
+  for(const m of S.moves){
+    const s=ab(ap(S.b,m),-t,dep-1,-1e9,1e9)*t+Math.random()*noise;
+    if(bs==null||s>bs){bs=s;best=m}
+  }
+  return best;
+}
+function aiMove(){
+  S.busy=true;draw();const g=S.gen;
+  setTimeout(()=>{
+    if(g!=S.gen)return;
+    const m=pick(),real=S.b,p=real[m.from],tmp=real.slice();
+    let k=0,prev=m.from;
+    const step=()=>{
+      if(g!=S.gen)return;
+      if(k>=m.path.length){S.b=real;S.busy=false;play(m);return}
+      tmp[prev]=0;if(m.cap[k]!=null)tmp[m.cap[k]]=0;
+      prev=m.path[k];tmp[prev]=p;S.b=tmp;S.last=[m.from,prev];
+      k++;draw();setTimeout(step,k>=m.path.length?500:650);
+    };
+    S.last=[m.from,m.from];S.b=real.slice();draw();
+    setTimeout(step,600);
+  },700);
+}
+const nome=t=>t==1?'Brancas':'Pretas';
+function setMsg(){S.msg=!S.over&&!(S.mode=='ai'&&S.turn!=S.human)&&!(S.mode=='online'&&(!S.on||S.turn!=S.on.color))&&S.moves[0]&&S.moves[0].cap.length?'Captura obrigatória!':''}
+function play(m){
+  if(S.mode=='online'){onlinePlay(m);return}
+  S.hist.push({b:S.b,turn:S.turn,dc:S.dc});
+  const p=S.b[m.from];
+  S.dc=(m.cap.length||Math.abs(p)==1)?0:S.dc+1;
+  S.b=ap(S.b,m);S.last=[m.from,m.path[m.path.length-1]];
+  S.turn=-S.turn;S.sel=null;S.cands=[];S.step=0;
+  S.moves=legal(S.b,S.turn);
+  if(!S.moves.length){S.over=true;S.winner=-S.turn;S.why=S.b.some(x=>Math.sign(x)==S.turn)?'bloqueio':'sem peças'}
+  else if(S.dc>=40){S.over=true;S.winner=0;S.why='empate'}
+  if(S.over){if(S.winner)S.wins[S.winner]++;else S.draws++}
+  setMsg();draw();
+  if(S.over)setTimeout(showEnd,500);
+  if(S.mode=='ai'&&!S.over&&S.turn!=S.human)aiMove();
+}
+function click(i){
+  if(S.over||S.busy||(S.mode=='ai'&&S.turn!=S.human)||(S.mode=='online'&&(!S.on||!S.on.color||S.turn!=S.on.color)))return;
+  const own=Math.sign(S.b[i])==S.turn;
+  if(own&&S.step==0){
+    const c=S.moves.filter(m=>m.from==i);
+    S.sel=c.length?i:null;S.cands=c;
+    if(!c.length)S.msg=S.moves[0].cap.length?'Captura obrigatória: use uma peça que possa capturar.':'Essa peça não tem movimento.';
+    else setMsg();
+    draw();return;
+  }
+  if(S.sel==null)return;
+  const nc=S.cands.filter(m=>m.path[S.step]==i);
+  if(!nc.length){S.sel=null;S.step=0;S.cands=[];draw();return}
+  S.cands=nc;S.step++;
+  const done=nc.find(m=>m.path.length==S.step);
+  if(done)play(done);else draw();
+}
+function draw(){
+  const el=$('board');el.innerHTML='';
+  const tg=new Set(S.cands.map(m=>m.path[S.step]));
+  const wp=new Set(S.step&&S.cands[0]?S.cands[0].path.slice(0,S.step):[]);
+  for(let k=0;k<64;k++){
+    const i=S.flip?63-k:k,r=i>>3,c=i&7,d=document.createElement('div');
+    let cl='sq '+((r+c)%2?'d':'l');
+    if(i==S.sel)cl+=' sel';
+    if(S.sel!=null&&tg.has(i))cl+=' tgt';else if(wp.has(i))cl+=' wp';
+    if(S.last&&(i==S.last[0]||i==S.last[1]))cl+=' last';
+    d.className=cl;d.dataset.i=i;
+    const p=S.b[i];
+    if(p){const q=document.createElement('div');q.className='pc '+(p>0?'w':'b');if(Math.abs(p)==2)q.textContent='♛';d.appendChild(q)}
+    el.appendChild(d);
+  }
+  const cnt=t=>S.b.filter(x=>Math.sign(x)==t).length,kg=t=>S.b.filter(x=>x==2*t).length;
+  const ai=S.mode=='ai';
+  const nm=who;
+  let h='';
+  for(const t of [1,-1])h+='<div class="pl'+(!S.over&&S.turn==t?' on':'')+'"><h3><span class="dot '+(t>0?'w':'b')+'"></span>'+nm(t)+' ('+nome(t)+')</h3><div class="pts">'+(12-cnt(-t))+'</div><small>peças capturadas</small><small>Restam '+cnt(t)+' · Damas '+kg(t)+'</small><small>Vitórias: '+S.wins[t]+'</small></div>';
+  h+='<div class="pl"><h3>Empates</h3><div class="pts">'+S.draws+'</div></div>';
+  $('score').innerHTML=h;
+  let t;
+  if(S.over)t=S.winner==0?'Empate!':'Fim de jogo — vence '+nm(S.winner)+'!';
+  else if(S.busy)t='⏳ Máquina jogando…';
+  else if(S.mode=='online')t=!S.on?'Crie uma partida ou entre com um código':!S.on.color?'Procurando a partida…':!S.on.opp?'Aguardando seu amigo… Código: '+S.on.code.toUpperCase():S.turn==S.on.color?'Sua vez ('+nome(S.turn)+')':'Vez do adversário…';
+  else t=ai?'Sua vez ('+nome(S.turn)+')':'Vez das '+nome(S.turn);
+  $('st').textContent=t;
+  $('toast').innerHTML=S.msg?'<span>⚠ '+S.msg+'</span>':'';
+  $('new').textContent=S.mode=='online'&&S.on?(S.over?'Revanche':'Sair da partida'):'Novo jogo';
+  $('olink').textContent=S.on?'Código: '+S.on.code.toUpperCase():'';
+}
+function showEnd(){
+  if(!S.over)return;
+  const ai=S.mode=='ai',nm=who;
+  const w=S.winner,c1=12-S.b.filter(x=>x<0).length,c2=12-S.b.filter(x=>x>0).length;
+  let ti,why;
+  if(w==0){ti='🤝 Empate!';why='Passaram 20 lances só com damas, sem nenhuma captura.'}
+  else{
+    ti=(ai||S.mode=='online')?(nm(w)=='Você'?'🎉 Você venceu!':(ai?'🤖 A máquina venceu!':'😕 Seu adversário venceu!')):'🏆 Vitória das '+nome(w)+'!';
+    why=S.why=='bloqueio'?nm(-w)+' não tem mais jogadas possíveis.':nm(-w)+' ficou sem peças.';
+  }
+  $('modal').innerHTML='<div class="box" role="dialog" aria-live="assertive"><h2>'+ti+'</h2><p>'+why+'</p><p><b>Pontos na partida</b><br>Brancas '+c1+' × '+c2+' Pretas</p><p>Vitórias no total<br>Brancas '+S.wins[1]+' · Pretas '+S.wins[-1]+' · Empates '+S.draws+'</p><div class="row"><button id="again">Jogar de novo</button><button id="close" class="ghost">Ver tabuleiro</button></div></div>';
+  $('modal').classList.add('show');
+  $('again').onclick=()=>{S.mode=='online'&&S.on?rematch():init()};$('close').onclick=()=>$('modal').classList.remove('show');
+  $('again').focus();
+}
+function who(t){
+  if(S.mode=='ai')return t==S.human?'Você':'Máquina';
+  if(S.mode=='online'&&S.on)return t==S.on.color?'Você':'Adversário';
+  return nome(t);
+}
+function newBoard(){const b=Array(64).fill(0);for(let i=0;i<64;i++){const r=i>>3,c=i&7;if((r+c)%2){if(r<3)b[i]=-1;else if(r>4)b[i]=1}}return b}
+function leaveOnline(){
+  const O=S.on;if(!O)return;
+  S.on=null;
+  try{O.off&&O.off();O.R.leave()}catch(e){}
+}
+function applyG(g,remote){
+  const O=S.on;O.n=g.n;
+  S.b=Array.from(g.b);S.turn=g.turn;S.dc=g.dc||0;S.last=g.last?Array.from(g.last):null;
+  S.over=!!g.over;S.winner=g.winner;S.why=g.why;S.sel=null;S.cands=[];S.step=0;S.busy=false;
+  S.moves=legal(S.b,S.turn);
+  setMsg();
+  if(!S.over)$('modal').classList.remove('show');
+  if(remote&&!S.over&&g.last&&S.turn==O.color){S.msg='Seu adversário jogou — sua vez!'+(S.msg?' '+S.msg:'');try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}}
+  if(S.over&&O.cnt!==g.n){O.cnt=g.n;if(S.winner)S.wins[S.winner]++;else S.draws++;setTimeout(showEnd,500)}
+}
+function pubOnline(b,turn,dc,last,over,winner,why){
+  const O=S.on,g={n:O.n+1,b,turn,dc,last,over,winner,why};
+  applyG(g,false);draw();
+  O.R.presence({c:O.color,g}).catch(()=>{});
+}
+function onlinePlay(m){
+  const p=S.b[m.from],nb=ap(S.b,m),t=-S.turn;
+  const dc=(m.cap.length||Math.abs(p)==1)?0:S.dc+1;
+  const ms=legal(nb,t);let over=false,winner=null,why='';
+  if(!ms.length){over=true;winner=-t;why=nb.some(x=>Math.sign(x)==t)?'bloqueio':'sem peças'}
+  else if(dc>=40){over=true;winner=0;why='empate'}
+  pubOnline(nb,t,dc,[m.from,m.path[m.path.length-1]],over,winner,why);
+}
+function rematch(){if(S.on)pubOnline(newBoard(),1,0,null,false,null,'')}
+function sync(){
+  const O=S.on;if(!O)return;
+  const ps=O.R.peers().filter(p=>!p.isMe);
+  O.opp=ps.length>0;
+  if(!O.color){
+    const cs=ps.map(p=>p.presence&&p.presence.c).filter(c=>c===1||c===-1);
+    if(cs.includes(1)&&cs.includes(-1)){leaveOnline();S.msg='Essa partida já está cheia.';draw();return}
+    if(cs.length){O.color=-cs[0];S.flip=O.color==-1;O.R.presence({c:O.color}).catch(()=>{})}
+  }
+  let best=null;
+  for(const p of ps){
+    const g=p.presence&&p.presence.g;
+    if(g&&typeof g.n=='number'&&Array.isArray(g.b)&&g.b.length==64&&g.b.every(v=>v>=-2&&v<=2)&&(g.turn===1||g.turn===-1)&&(!best||g.n>best.n))best=g;
+  }
+  if(best&&best.n>O.n)applyG(best,true);
+  draw();
+}
+async function goOnline(code,create){
+  leaveOnline();
+  let R=null;
+  try{const rm=window.claude&&await claude.use('room');if(rm)R=await rm.join(code)}catch(e){}
+  S.wins={1:0,'-1':0};S.draws=0;
+  init();
+  if(!R){S.msg='Online indisponível aqui. Abra o jogo pelo Claude, logado, e peça o mesmo ao seu amigo.';draw();return}
+  const col=create?+$('side').value:0;
+  const O=S.on={R,code,color:col,n:-1,opp:false,cnt:null};
+  if(create){
+    const g0={n:0,b:newBoard(),turn:1,dc:0,last:null,over:false,winner:null,why:''};
+    S.flip=col==-1;applyG(g0,false);
+    R.presence({c:col,g:g0}).catch(()=>{});
+  }else{
+    setTimeout(()=>{if(S.on===O&&!O.color){leaveOnline();S.msg='Não achei essa partida. Peça ao amigo para criar uma e deixar a tela aberta.';draw()}},5000);
+  }
+  O.off=R.onPeers(sync);
+  draw();
+}
+function onNew(){
+  if(S.mode=='online'&&S.on){if(S.over)rematch();else{leaveOnline();init()}return}
+  init();
+}
+function init(){
+  S.gen++;$('modal').classList.remove('show');
+  const b=Array(64).fill(0);
+  for(let i=0;i<64;i++){const r=i>>3,c=i&7;if((r+c)%2){if(r<3)b[i]=-1;else if(r>4)b[i]=1}}
+  Object.assign(S,{b,turn:1,mode:$('mode').value,level:+$('level').value,human:+$('side').value,hist:[],sel:null,cands:[],step:0,last:null,over:false,busy:false,dc:0,winner:null,msg:''});
+  S.flip=S.mode=='ai'&&S.human==-1;
+  S.moves=legal(b,1);setMsg();
+  const ai=S.mode=='ai';
+  const onl=S.mode=='online';
+  $('l1').style.display=ai?'':'none';$('l2').style.display=ai||onl?'':'none';
+  $('online').style.display=onl?'':'none';$('undo').style.display=onl?'none':'';
+  draw();
+  if(ai&&S.turn!=S.human)aiMove();
+}
+function undo(){
+  if(S.busy||!S.hist.length)return;
+  if(S.over){if(S.winner)S.wins[S.winner]--;else S.draws--}
+  $('modal').classList.remove('show');
+  const rs=h=>{S.b=h.b;S.turn=h.turn;S.dc=h.dc};
+  rs(S.hist.pop());
+  if(S.mode=='ai'&&S.turn!=S.human&&S.hist.length)rs(S.hist.pop());
+  Object.assign(S,{over:false,winner:null,sel:null,cands:[],step:0,last:null});
+  S.moves=legal(S.b,S.turn);setMsg();draw();
+  if(S.mode=='ai'&&S.turn!=S.human)aiMove();
+}
+$('board').addEventListener('click',e=>{const s=e.target.closest('.sq');if(s)click(+s.dataset.i)});
+$('mode').addEventListener('change',()=>{S.wins={1:0,'-1':0};S.draws=0;leaveOnline();init()});
+$('side').addEventListener('change',()=>{if($('mode').value=='online'&&S.on)return;S.wins={1:0,'-1':0};S.draws=0;init()});
+$('create').onclick=()=>goOnline(Array.from({length:5},()=>'abcdefghjkmnpqrstuvwxyz23456789'[Math.random()*31|0]).join(''),true);
+$('join').onclick=()=>{const c=$('code').value.trim().toLowerCase().replace(/[^a-z0-9]/g,'');if(c.length<3){S.msg='Digite o código da partida.';draw();return}goOnline(c,false)};
+$('level').addEventListener('change',init);
+$('new').onclick=onNew;$('undo').onclick=undo;
+init();
+</script>
+</body>
+</html>
