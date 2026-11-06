@@ -9,34 +9,34 @@
 :root{--bg:#efe6d2;--fg:#2a1e12;--bd:#c9b48f;--card:#f8f1e1;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1510;--fg:#f0e6d3;--bd:#4d3c28;--card:#2a2118;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#1b1510;--fg:#f0e6d3;--bd:#4d3c28;--card:#2a2118;color-scheme:dark}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 Georgia,"Times New Roman",serif;display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px}
-h1{margin:0;font-size:1.7rem;letter-spacing:.02em}
-.bar{display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:center;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 14px}
-label{display:flex;gap:6px;align-items:center;font-size:.95rem}
-select,button{font:inherit;padding:6px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--fg);cursor:pointer}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%;height:100dvh;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--fg);font:15px/1.3 Georgia,"Times New Roman",serif;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px}
+h1{margin:0;font-size:1.15rem;letter-spacing:.02em}
+.bar{display:flex;flex-wrap:wrap;gap:6px 10px;justify-content:center;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:6px 10px;max-width:100%}
+label,#joinbox{display:flex;gap:5px;align-items:center;font-size:.85rem}
+select,button,input{font:inherit;font-size:.9rem;padding:5px 9px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--fg);cursor:pointer}
 button{background:#8a5a2b;color:#fff;border-color:#8a5a2b}
-button:focus-visible,select:focus-visible{outline:3px solid #e0a63a;outline-offset:2px}
-#score{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-.pl{min-width:150px;background:var(--card);border:2px solid var(--bd);border-radius:12px;padding:8px 14px;text-align:center}
+button.alt{background:transparent;color:var(--fg)}
+input{cursor:text;width:7em}
+#code{width:5.8em;text-transform:uppercase;letter-spacing:.15em;text-align:center}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #e0a63a;outline-offset:2px}
+#score{display:flex;gap:6px;justify-content:center;width:100%;max-width:640px}
+.pl{flex:1 1 0;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:0 6px;background:var(--card);border:2px solid var(--bd);border-radius:10px;padding:3px 8px}
+.pl.emp{flex:0 0 auto}
 .pl.on{border-color:#e0a63a;box-shadow:0 0 0 3px rgba(224,166,58,.35)}
-.pl h3{margin:0 0 2px;font-size:1rem;display:flex;gap:6px;align-items:center;justify-content:center}
-.dot{width:16px;height:16px;border-radius:50%;display:inline-block;border:1px solid #0006}
+.pl h3{margin:0;font-size:.85rem;display:flex;gap:5px;align-items:center;min-width:0;white-space:nowrap}
+.pl h3 em{font-style:normal;overflow:hidden;text-overflow:ellipsis}
+.dot{flex:none;width:14px;height:14px;border-radius:50%;display:inline-block;border:1px solid #0006}
 .dot.w{background:#f4efe3}.dot.b{background:#222}
-.pl .pts{font-size:2rem;font-weight:bold;line-height:1.1}
-.pl small{display:block;opacity:.85}
-#st{text-align:center;font-size:1.25rem;font-weight:bold}
-#toast{min-height:2.6em;display:flex;align-items:center}
-#toast span{background:#c2410c;color:#fff;font-weight:bold;padding:8px 18px;border-radius:999px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
-#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
-#modal.show{display:flex}
-.box{background:var(--card);color:var(--fg);border:3px solid #e0a63a;border-radius:16px;padding:22px 26px;max-width:420px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.5)}
-.box h2{margin:0 0 6px;font-size:1.7rem}
-.box p{margin:6px 0}
-.box .row{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-.box .ghost{background:transparent;color:var(--fg)}
-#board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));--s:min(94vw,70vh,580px);width:var(--s);height:var(--s);border:7px solid #4f3216;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.35);user-select:none}
+.pl .pts{font-size:1.35rem;font-weight:bold;line-height:1}
+.pl small{grid-column:1/-1;font-size:.7rem;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#st{text-align:center;font-size:1.05rem;font-weight:bold;line-height:1.2}
+#toast{min-height:1.9em;display:flex;align-items:center}
+#toast span{background:#c2410c;color:#fff;font-weight:bold;font-size:.9rem;padding:4px 14px;border-radius:999px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+#bw{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;container-type:size}
+#board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));--s:min(94vw,50vh,580px);width:var(--s);height:var(--s);border:6px solid #4f3216;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.35);user-select:none;touch-action:manipulation}
+@supports (width:1cqw){#board{--s:min(100cqw,100cqh,720px)}}
 .sq{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;min-height:0}
 .l{background:#f1dcb7}.d{background:#9b6535;cursor:pointer}
 .d.last{background:#b98a3e}
@@ -47,28 +47,36 @@ button:focus-visible,select:focus-visible{outline:3px solid #e0a63a;outline-offs
 .pc{width:80%;height:80%;flex:none;line-height:1;overflow:hidden;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:calc(var(--s)/8*.45);box-shadow:0 3px 5px rgba(0,0,0,.55),inset 0 -4px 6px rgba(0,0,0,.25);z-index:1}
 .w{background:radial-gradient(circle at 35% 30%,#fff,#d8d2c4 70%);color:#a8780a}
 .b{background:radial-gradient(circle at 35% 30%,#6a6a6a,#141414 70%);color:#f5c542}
-.hint{max-width:580px;text-align:center;font-size:.85rem;opacity:.8;margin:0}
-input{font:inherit;padding:6px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--fg);width:7.5em;text-transform:uppercase;letter-spacing:.15em;text-align:center}
-*{-webkit-tap-highlight-color:transparent}
-#board{touch-action:manipulation}
-@media (max-width:600px){body{padding:10px}h1{font-size:1.4rem}button,select,input{font-size:16px;padding:10px 14px}.pl{min-width:0;flex:1 1 90px;padding:6px 8px}.pl .pts{font-size:1.6rem}}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+#modal.show{display:flex}
+.box{background:var(--card);color:var(--fg);border:3px solid #e0a63a;border-radius:16px;padding:18px 22px;max-width:420px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.5);max-height:100%;overflow:auto}
+.box h2{margin:0 0 6px;font-size:1.5rem}
+.box p{margin:6px 0}
+.box .row{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.box .ghost{background:transparent;color:var(--fg)}
+@media (max-width:600px){input,select{font-size:16px}.bar{gap:5px 8px;padding:5px 8px}}
+@media (max-height:760px){h1{display:none}}
 </style>
 </head>
 <body>
 <h1>Jogo de Damas</h1>
 <div class="bar">
-<label>Modo <select id="mode"><option value="ai">Contra a máquina</option><option value="pvp">Dois jogadores (mesmo aparelho)</option><option value="online">Online (cada um no seu celular)</option></select></label>
+<label>Modo <select id="mode"><option value="ai">Contra a máquina</option><option value="pvp">Dois no mesmo aparelho</option><option value="online">Online</option></select></label>
 <label id="l1">Nível <select id="level"><option value="1">Fácil</option><option value="2" selected>Médio</option><option value="3">Difícil</option></select></label>
-<label id="l2">Você joga com <select id="side"><option value="1">Brancas</option><option value="-1">Pretas</option></select></label>
-<button id="new">Novo jogo</button><button id="undo">Desfazer</button>
+<label id="l2">Cor <select id="side"><option value="1">Brancas</option><option value="-1">Pretas</option></select></label>
+<button id="new">Novo jogo</button><button id="undo">Desfazer</button><button id="rules" class="alt">Regras</button>
 </div>
-<div id="online" class="bar" style="display:none"><button id="create">Criar partida</button><span>ou</span><input id="code" placeholder="CÓDIGO" maxlength="5" autocomplete="off" autocapitalize="characters" aria-label="Código da partida"><button id="join">Entrar</button><b id="olink"></b></div>
+<div id="online" class="bar" style="display:none">
+<input id="pname" placeholder="Seu nome" maxlength="14" autocomplete="nickname" aria-label="Seu nome">
+<button id="create">Criar partida</button>
+<span id="joinbox"><span>ou</span><input id="code" placeholder="CÓDIGO" maxlength="5" autocomplete="off" autocapitalize="characters" aria-label="Código da partida"><button id="join">Entrar</button></span>
+<b id="olink"></b>
+</div>
 <div id="score"></div>
 <div id="st"></div>
 <div id="toast"></div>
-<div id="board"></div>
+<div id="bw"><div id="board"></div></div>
 <div id="modal"></div>
-<p class="hint">Damas brasileiras: as brancas começam, a captura é obrigatória (vale a que pega mais peças), as pedras capturam para trás e a dama anda e captura à distância. Clique na peça e depois na casa de destino; em capturas múltiplas, clique em cada casa do percurso. No modo online, uma pessoa cria a partida e passa o código para a outra; as duas precisam manter o jogo aberto durante a partida.</p>
 <script>
 const $=id=>document.getElementById(id);
 const S={gen:0,wins:{1:0,'-1':0},draws:0};
@@ -214,13 +222,13 @@ function draw(){
   const ai=S.mode=='ai';
   const nm=who;
   let h='';
-  for(const t of [1,-1])h+='<div class="pl'+(!S.over&&S.turn==t?' on':'')+'"><h3><span class="dot '+(t>0?'w':'b')+'"></span>'+nm(t)+' ('+nome(t)+')</h3><div class="pts">'+(12-cnt(-t))+'</div><small>peças capturadas</small><small>Restam '+cnt(t)+' · Damas '+kg(t)+'</small><small>Vitórias: '+S.wins[t]+'</small></div>';
-  h+='<div class="pl"><h3>Empates</h3><div class="pts">'+S.draws+'</div></div>';
+  for(const t of [1,-1])h+='<div class="pl'+(!S.over&&S.turn==t?' on':'')+'"><h3><span class="dot '+(t>0?'w':'b')+'"></span><em>'+nm(t)+' ('+nome(t)+')</em></h3><div class="pts">'+(12-cnt(-t))+'</div><small>capturas · restam '+cnt(t)+' · damas '+kg(t)+' · vitórias '+S.wins[t]+'</small></div>';
+  h+='<div class="pl emp"><h3>Empates</h3><div class="pts">'+S.draws+'</div></div>';
   $('score').innerHTML=h;
   let t;
   if(S.over)t=S.winner==0?'Empate!':'Fim de jogo — vence '+nm(S.winner)+'!';
   else if(S.busy)t='⏳ Máquina jogando…';
-  else if(S.mode=='online')t=!S.on?'Crie uma partida ou entre com um código':!S.on.color?'Procurando a partida…':!S.on.opp?'Aguardando seu amigo… Código: '+S.on.code.toUpperCase():S.turn==S.on.color?'Sua vez ('+nome(S.turn)+')':'Vez do adversário…';
+  else if(S.mode=='online')t=!S.on?'Crie uma partida ou entre com um código':!S.on.color?'Procurando a partida…':!S.on.opp?'Aguardando seu amigo… Código: '+S.on.code.toUpperCase():S.turn==S.on.color?'Sua vez ('+nome(S.turn)+')':'Vez de '+who(S.turn)+'…';
   else t=ai?'Sua vez ('+nome(S.turn)+')':'Vez das '+nome(S.turn);
   $('st').textContent=t;
   $('toast').innerHTML=S.msg?'<span>⚠ '+S.msg+'</span>':'';
@@ -234,7 +242,8 @@ function showEnd(){
   let ti,why;
   if(w==0){ti='🤝 Empate!';why='Passaram 20 lances só com damas, sem nenhuma captura.'}
   else{
-    ti=(ai||S.mode=='online')?(nm(w)=='Você'?'🎉 Você venceu!':(ai?'🤖 A máquina venceu!':'😕 Seu adversário venceu!')):'🏆 Vitória das '+nome(w)+'!';
+    const me=ai?S.human:(S.on&&S.on.color);
+    ti=(ai||S.mode=='online')?(w==me?'🎉 Você venceu!':(ai?'🤖 A máquina venceu!':'😕 '+nm(w)+' venceu!')):'🏆 Vitória das '+nome(w)+'!';
     why=S.why=='bloqueio'?nm(-w)+' não tem mais jogadas possíveis.':nm(-w)+' ficou sem peças.';
   }
   $('modal').innerHTML='<div class="box" role="dialog" aria-live="assertive"><h2>'+ti+'</h2><p>'+why+'</p><p><b>Pontos na partida</b><br>Brancas '+c1+' × '+c2+' Pretas</p><p>Vitórias no total<br>Brancas '+S.wins[1]+' · Pretas '+S.wins[-1]+' · Empates '+S.draws+'</p><div class="row"><button id="again">Jogar de novo</button><button id="close" class="ghost">Ver tabuleiro</button></div></div>';
@@ -242,15 +251,16 @@ function showEnd(){
   $('again').onclick=()=>{S.mode=='online'&&S.on?rematch():init()};$('close').onclick=()=>$('modal').classList.remove('show');
   $('again').focus();
 }
+const clean=s=>String(s||'').replace(/[<>&"'`\\]/g,'').trim().slice(0,14);
 function who(t){
   if(S.mode=='ai')return t==S.human?'Você':'Máquina';
-  if(S.mode=='online'&&S.on)return t==S.on.color?'Você':'Adversário';
+  if(S.mode=='online'&&S.on)return t==S.on.color?(S.on.name||'Você'):(S.on.oppName||'Adversário');
   return nome(t);
 }
 function newBoard(){const b=Array(64).fill(0);for(let i=0;i<64;i++){const r=i>>3,c=i&7;if((r+c)%2){if(r<3)b[i]=-1;else if(r>4)b[i]=1}}return b}
 function leaveOnline(){
   const O=S.on;if(!O)return;
-  S.on=null;
+  S.on=null;$('joinbox').style.display='';
   try{O.off&&O.off();O.R.leave()}catch(e){}
 }
 function applyG(g,remote){
@@ -260,7 +270,7 @@ function applyG(g,remote){
   S.moves=legal(S.b,S.turn);
   setMsg();
   if(!S.over)$('modal').classList.remove('show');
-  if(remote&&!S.over&&g.last&&S.turn==O.color){S.msg='Seu adversário jogou — sua vez!'+(S.msg?' '+S.msg:'');try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}}
+  if(remote&&!S.over&&g.last&&S.turn==O.color){S.msg=(O.oppName||'Seu adversário')+' jogou — sua vez!'+(S.msg?' '+S.msg:'');try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}}
   if(S.over&&O.cnt!==g.n){O.cnt=g.n;if(S.winner)S.wins[S.winner]++;else S.draws++;setTimeout(showEnd,500)}
 }
 function pubOnline(b,turn,dc,last,over,winner,why){
@@ -281,10 +291,11 @@ function sync(){
   const O=S.on;if(!O)return;
   const ps=O.R.peers().filter(p=>!p.isMe);
   O.opp=ps.length>0;
+  O.oppName=clean(ps.map(p=>p.presence&&p.presence.nm).find(x=>typeof x=='string'&&x)||'');
   if(!O.color){
     const cs=ps.map(p=>p.presence&&p.presence.c).filter(c=>c===1||c===-1);
     if(cs.includes(1)&&cs.includes(-1)){leaveOnline();S.msg='Essa partida já está cheia.';draw();return}
-    if(cs.length){O.color=-cs[0];S.flip=O.color==-1;O.R.presence({c:O.color}).catch(()=>{})}
+    if(cs.length){O.color=-cs[0];S.flip=O.color==-1;O.R.presence({c:O.color,nm:O.name}).catch(()=>{})}
   }
   let best=null;
   for(const p of ps){
@@ -329,14 +340,17 @@ async function goOnline(code,create){
   try{R=await getR(code,create)}catch(e){}
   S.wins={1:0,'-1':0};S.draws=0;
   init();
-  if(!R){S.msg='Não consegui conectar ao servidor online. Verifique a internet e tente de novo.';draw();return}
+  const name=clean($('pname').value);try{localStorage.setItem('damasNome',name)}catch(e){}
+  $('joinbox').style.display=create?'none':'';
+  if(!R){$('joinbox').style.display='';S.msg='Não consegui conectar ao servidor online. Verifique a internet e tente de novo.';draw();return}
   const col=create?+$('side').value:0;
-  const O=S.on={R,code,color:col,n:-1,opp:false,cnt:null};
+  const O=S.on={R,code,color:col,n:-1,opp:false,cnt:null,name,oppName:''};
   if(create){
     const g0={n:0,b:newBoard(),turn:1,dc:0,last:null,over:false,winner:null,why:''};
     S.flip=col==-1;applyG(g0,false);
-    R.presence({c:col,g:g0}).catch(()=>{});
+    R.presence({c:col,g:g0,nm:name}).catch(()=>{});
   }else{
+    R.presence({nm:name}).catch(()=>{});
     setTimeout(()=>{if(S.on===O&&!O.color){leaveOnline();S.msg='Não achei essa partida. Peça ao amigo para criar uma e deixar a tela aberta.';draw()}},12000);
   }
   O.off=R.onPeers(sync);
@@ -378,6 +392,8 @@ $('create').onclick=()=>goOnline(Array.from({length:5},()=>'abcdefghjkmnpqrstuvw
 $('join').onclick=()=>{const c=$('code').value.trim().toLowerCase().replace(/[^a-z0-9]/g,'');if(c.length<3){S.msg='Digite o código da partida.';draw();return}goOnline(c,false)};
 $('level').addEventListener('change',init);
 $('new').onclick=onNew;$('undo').onclick=undo;
+try{$('pname').value=clean(localStorage.getItem('damasNome'))}catch(e){}
+$('rules').onclick=()=>{$('modal').innerHTML='<div class="box"><h2>Regras</h2><p style="text-align:left">Damas brasileiras: as brancas começam; a captura é obrigatória e vale a que pega mais peças; as pedras capturam para trás; a dama anda e captura à distância. Clique na peça e depois na casa de destino (em capturas múltiplas, clique em cada casa do percurso).</p><p style="text-align:left">Online: uma pessoa toca em Criar partida e passa o código; a outra digita o código e toca em Entrar. As duas mantêm o jogo aberto durante a partida.</p><div class="row"><button id="rc">Fechar</button></div></div>';$('modal').classList.add('show');$('rc').onclick=()=>$('modal').classList.remove('show')};
 init();
 </script>
 </body>
