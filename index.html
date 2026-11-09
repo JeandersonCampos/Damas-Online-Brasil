@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Jogo de Damas</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#8a5a2b">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Damas">
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
 :root{--bg:#efe6d2;--fg:#2a1e12;--bd:#c9b48f;--card:#f8f1e1;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -19,6 +26,8 @@ select,button,input{font:inherit;font-size:.9rem;padding:5px 9px;border-radius:8
 button{background:#8a5a2b;color:#fff;border-color:#8a5a2b}
 button.alt{background:transparent;color:var(--fg)}
 input{cursor:text;width:7em}
+#pname{width:8.5em}
+#pname.err{border-color:#c2410c;box-shadow:0 0 0 2px rgba(194,65,12,.4)}
 #code{width:5.8em;text-transform:uppercase;letter-spacing:.15em;text-align:center}
 button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #e0a63a;outline-offset:2px}
 #score{display:flex;gap:6px;justify-content:center;width:100%;max-width:640px}
@@ -64,10 +73,10 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 <label>Modo <select id="mode"><option value="ai">Contra a máquina</option><option value="pvp">Dois no mesmo aparelho</option><option value="online">Online</option></select></label>
 <label id="l1">Nível <select id="level"><option value="1">Fácil</option><option value="2" selected>Médio</option><option value="3">Difícil</option></select></label>
 <label id="l2">Cor <select id="side"><option value="1">Brancas</option><option value="-1">Pretas</option></select></label>
-<button id="new">Novo jogo</button><button id="undo">Desfazer</button><button id="rules" class="alt">Regras</button>
+<button id="new">Novo jogo</button><button id="undo">Desfazer</button><button id="rules" class="alt">Regras</button><button id="install" class="alt">Instalar app</button>
 </div>
 <div id="online" class="bar" style="display:none">
-<input id="pname" placeholder="Seu nome" maxlength="14" autocomplete="nickname" aria-label="Seu nome">
+<input id="pname" placeholder="Seu nome *" maxlength="14" autocomplete="nickname" aria-label="Seu nome (obrigatório)" aria-required="true" required>
 <button id="create">Criar partida</button>
 <span id="joinbox"><span>ou</span><input id="code" placeholder="CÓDIGO" maxlength="5" autocomplete="off" autocapitalize="characters" aria-label="Código da partida"><button id="join">Entrar</button></span>
 <b id="olink"></b>
@@ -388,11 +397,27 @@ function undo(){
 $('board').addEventListener('click',e=>{const s=e.target.closest('.sq');if(s)click(+s.dataset.i)});
 $('mode').addEventListener('change',()=>{S.wins={1:0,'-1':0};S.draws=0;leaveOnline();init()});
 $('side').addEventListener('change',()=>{if($('mode').value=='online'&&S.on)return;S.wins={1:0,'-1':0};S.draws=0;init()});
-$('create').onclick=()=>goOnline(Array.from({length:5},()=>'abcdefghjkmnpqrstuvwxyz23456789'[Math.random()*31|0]).join(''),true);
-$('join').onclick=()=>{const c=$('code').value.trim().toLowerCase().replace(/[^a-z0-9]/g,'');if(c.length<3){S.msg='Digite o código da partida.';draw();return}goOnline(c,false)};
+$('create').onclick=()=>{if(needName())goOnline(Array.from({length:5},()=>'abcdefghjkmnpqrstuvwxyz23456789'[Math.random()*31|0]).join(''),true)};
+$('join').onclick=()=>{if(!needName())return;const c=$('code').value.trim().toLowerCase().replace(/[^a-z0-9]/g,'');if(c.length<3){S.msg='Digite o código da partida.';draw();return}goOnline(c,false)};
 $('level').addEventListener('change',init);
 $('new').onclick=onNew;$('undo').onclick=undo;
 try{$('pname').value=clean(localStorage.getItem('damasNome'))}catch(e){}
+function needName(){
+  if(clean($('pname').value)){$('pname').classList.remove('err');return true}
+  $('pname').classList.add('err');$('pname').focus();
+  S.msg='Informe o seu nome para jogar online.';draw();return false;
+}
+$('pname').addEventListener('input',()=>$('pname').classList.remove('err'));
+let dip=null;
+if(matchMedia('(display-mode: standalone)').matches||navigator.standalone)$('install').style.display='none';
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();dip=e});
+addEventListener('appinstalled',()=>{$('install').style.display='none'});
+$('install').onclick=async()=>{
+  if(dip){dip.prompt();try{await dip.userChoice}catch(e){}dip=null;return}
+  $('modal').innerHTML='<div class="box"><h2>Instalar o jogo</h2><p style="text-align:left"><b>Android (Chrome):</b> menu ⋮ e depois Instalar app (ou Adicionar à tela inicial).</p><p style="text-align:left"><b>iPhone (Safari):</b> botão Compartilhar e depois Adicionar à Tela de Início.</p><p style="text-align:left"><b>Computador (Chrome/Edge):</b> ícone de instalar na barra de endereço.</p><div class="row"><button id="ic">Fechar</button></div></div>';
+  $('modal').classList.add('show');$('ic').onclick=()=>$('modal').classList.remove('show');
+};
+if('serviceWorker' in navigator)addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})});
 $('rules').onclick=()=>{$('modal').innerHTML='<div class="box"><h2>Regras</h2><p style="text-align:left">Damas brasileiras: as brancas começam; a captura é obrigatória e vale a que pega mais peças; as pedras capturam para trás; a dama anda e captura à distância. Clique na peça e depois na casa de destino (em capturas múltiplas, clique em cada casa do percurso).</p><p style="text-align:left">Online: uma pessoa toca em Criar partida e passa o código; a outra digita o código e toca em Entrar. As duas mantêm o jogo aberto durante a partida.</p><div class="row"><button id="rc">Fechar</button></div></div>';$('modal').classList.add('show');$('rc').onclick=()=>$('modal').classList.remove('show')};
 init();
 </script>
