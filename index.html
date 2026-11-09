@@ -73,7 +73,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 <label>Modo <select id="mode"><option value="ai">Contra a máquina</option><option value="pvp">Dois no mesmo aparelho</option><option value="online">Online</option></select></label>
 <label id="l1">Nível <select id="level"><option value="1">Fácil</option><option value="2" selected>Médio</option><option value="3">Difícil</option></select></label>
 <label id="l2">Cor <select id="side"><option value="1">Brancas</option><option value="-1">Pretas</option></select></label>
-<button id="new">Novo jogo</button><button id="undo">Desfazer</button><button id="rules" class="alt">Regras</button><button id="install" class="alt">Instalar app</button>
+<button id="new">Novo jogo</button><button id="undo">Desfazer</button><button id="rules" class="alt">Regras</button><button id="install" class="alt">Instalar</button><button id="share" class="alt">Compartilhar</button>
 </div>
 <div id="online" class="bar" style="display:none">
 <input id="pname" placeholder="Seu nome *" maxlength="14" autocomplete="nickname" aria-label="Seu nome (obrigatório)" aria-required="true" required>
@@ -416,6 +416,23 @@ $('install').onclick=async()=>{
   if(dip){dip.prompt();try{await dip.userChoice}catch(e){}dip=null;return}
   $('modal').innerHTML='<div class="box"><h2>Instalar o jogo</h2><p style="text-align:left"><b>Android (Chrome):</b> menu ⋮ e depois Instalar app (ou Adicionar à tela inicial).</p><p style="text-align:left"><b>iPhone (Safari):</b> botão Compartilhar e depois Adicionar à Tela de Início.</p><p style="text-align:left"><b>Computador (Chrome/Edge):</b> ícone de instalar na barra de endereço.</p><div class="row"><button id="ic">Fechar</button></div></div>';
   $('modal').classList.add('show');$('ic').onclick=()=>$('modal').classList.remove('show');
+};
+function shareModal(text,url){
+  const full=text+' '+url;
+  $('modal').innerHTML='<div class="box"><h2>Compartilhar</h2><p style="text-align:left;word-break:break-word">'+text+'</p><p style="word-break:break-all"><b>'+url+'</b></p><div class="row"><button id="cp">Copiar</button><button id="wa">WhatsApp</button><button id="sc" class="ghost">Fechar</button></div></div>';
+  $('modal').classList.add('show');
+  $('cp').onclick=async()=>{try{await navigator.clipboard.writeText(full);$('cp').textContent='Copiado ✓'}catch(e){$('cp').textContent='Copie o link acima'}};
+  $('wa').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(full),'_blank');
+  $('sc').onclick=()=>$('modal').classList.remove('show');
+}
+$('share').onclick=async()=>{
+  const url=location.origin+location.pathname;
+  const on=S.mode=='online'&&S.on;
+  const text=on?'Vem jogar damas comigo! Abra o link, escolha Online, digite seu nome, cole o código '+S.on.code.toUpperCase()+' e toque em Entrar.':'Jogue damas brasileiras comigo: contra a máquina, no mesmo aparelho ou online. Dá para instalar como app!';
+  if(navigator.share){
+    try{await navigator.share({title:'Jogo de Damas',text,url});return}catch(e){if(e&&e.name=='AbortError')return}
+  }
+  shareModal(text,url);
 };
 if('serviceWorker' in navigator)addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})});
 $('rules').onclick=()=>{$('modal').innerHTML='<div class="box"><h2>Regras</h2><p style="text-align:left">Damas brasileiras: as brancas começam; a captura é obrigatória e vale a que pega mais peças; as pedras capturam para trás; a dama anda e captura à distância. Clique na peça e depois na casa de destino (em capturas múltiplas, clique em cada casa do percurso).</p><p style="text-align:left">Online: uma pessoa toca em Criar partida e passa o código; a outra digita o código e toca em Entrar. As duas mantêm o jogo aberto durante a partida.</p><div class="row"><button id="rc">Fechar</button></div></div>';$('modal').classList.add('show');$('rc').onclick=()=>$('modal').classList.remove('show')};
